@@ -1,3 +1,5 @@
+
+// spec https://cdn-shop.adafruit.com/datasheets/Digital+humidity+and+temperature+sensor+AM2302.pdf 
 int port = 4;
 int waitNumber = 10000;
 void setup() {
