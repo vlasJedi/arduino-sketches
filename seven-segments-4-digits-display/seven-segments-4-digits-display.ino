@@ -22,18 +22,20 @@ void setup() {
   
 }
 
-float output[2];
+float output[2] = {0, 0};
+int counter = 0;
 
 void loop() {
   // put your main code here, to run repeatedly:
-  readTHdata(output);
-  const int renderingTime = 4000;
-  int i = 0;
-  while (i < renderingTime) {
-    render();
-    i += 20;
+  if (counter == 1500) {
+      counter = 0;
+      readTHdata(output);
+  } else {
+      counter++;
   }
-  delay(20);
+  render();
+  //delay(24);
+  //delay(20);
   
   //useDigitPosition(-1);
 }
@@ -41,36 +43,40 @@ void loop() {
 void render() {
   displayNumber((int) output[0], 2, 0);
   displayNumber((int) output[1], 2, 2);
-  delay(20);
 }
 
 void displayNumber(int number, int count, int start) {
-  int i = 0;
-  int val = number;
   // remove any previous highlighted digits
   displayDigit(-1);
   useDigitPosition(-1);
+
+  int i = 0;
+  int val = number;
   while(i < count) {
     // do nothing
-    if (val == 0) {
-      displayDigit(-1);
-      useDigitPosition(-1);
-      i++;
-      continue;
-    // display specific digit
-    } else {
+//    if (val == 0) {
+//      useDigitPosition(-1);
+//      displayDigit(-1);
+//      i++;
+//      continue;
+//    // display specific digit
+//    } else {
       int rest = val % 10;
       // apply voltage
+      useDigitPosition(cathodCount - start - 1 - i);
       displayDigit(rest);
       val = (val - rest) / 10;
-      useDigitPosition(cathodCount - start - 1 - i);
-      delay(1);
+      delayMicroseconds(1000);
+      //delay(1);
       // relax voltage
       displayDigit(-1);
       useDigitPosition(-1);
       i++;
-    }
+//    }
   }
+  // relax voltage
+//  displayDigit(-1);
+//  useDigitPosition(-1);
 }
 
 void useDigitPosition(int id) {
@@ -258,7 +264,12 @@ int readTHdata(float* output) {
     pinMode(port, OUTPUT);
     // ask session
     digitalWrite(port, LOW);
-    delay(18);
+    //delay(18);
+    timeStart = millis();
+    while((millis() - timeStart) <= 18) {
+      //render();
+      //delay(10);
+    }
     digitalWrite(port, HIGH);
     delayMicroseconds(40);
     pinMode(port, INPUT);
@@ -302,7 +313,10 @@ int toDecimal(int arr[], int posStart, int posEnd) {
 int waitUntil(int port, int waitValue, int iterNumber) {
     while(digitalRead(port) != waitValue) {
         if (iterNumber == 0) return -1;
-        iterNumber--;  
+        iterNumber--;
+//        if ((iterNumber != 0) && (iterNumber % 1000 == 0)) {
+//            render();
+//        }  
     }
     return 0;
 }
